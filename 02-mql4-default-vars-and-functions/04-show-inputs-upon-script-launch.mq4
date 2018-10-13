@@ -15,12 +15,23 @@
 //|                                                                  |
 //| Script program start function                                    |
 //+------------------------------------------------------------------+
+
+
+// This program asks for tp & sl in pips from user for a buy trade
+// and shows the calculated tp & sl if the instrument is bought at CMP
+
+//The extern storage class defines the external variable. extern modifier is indicated before the data type
+extern int tp = 10;
+extern int sl = 10;
+
 void OnStart()
   {
-   double takeProfit;
-   double stopLoss;
+   double takeProfit = Bid + tp * Point ;             //takeProfit now contains the tp as per user input if a buy trade is taken at cmp
+   double stopLoss = Bid - sl * Point ;               //stopLoss now contains the sl as per user input if a buy trade is taken at cmp
    
-   
+   Alert("Buy Entry = ", Bid);
+   Alert("TP = ", takeProfit);
+   Alert("SL = ", stopLoss);
    
   }
 //+------------------------------------------------------------------+
