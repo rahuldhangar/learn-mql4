@@ -23,7 +23,7 @@ void OnStart()
    myIntegerVar= 10;
    myDoubleVar = 12.66;
    myBooleanVar= true;
-   myStringVar = "I am Rahul Dhangar";
+   myStringVar = "I am Rahul Dhangar Delhi ";
 
 //Showing the values of these variables in an Alert box
    Alert(myIntegerVar);
