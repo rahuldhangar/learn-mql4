@@ -21,6 +21,15 @@ void OnStart()
    z = x + y;
    Alert(z);               //should give 23 as output
    
+   //subtraction  Operation
+   
+   int x = 15;
+   int y = 8;
+   int z;
+   
+   z = x - y;
+   Alert(z);               //should give 7 as output
+   
    //Division Operation
    
    double p = 9.26;
