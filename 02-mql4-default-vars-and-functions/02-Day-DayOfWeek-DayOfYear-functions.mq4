@@ -25,7 +25,10 @@ void OnStart()
    
    switch(dayofweek)
    {
-      case 1:
+     case 0:
+         Alert("Type any Number to know Days");
+         break;
+     case 1:
          Alert("Its Monday");
          break;
       case 2:
