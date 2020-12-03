@@ -1,3 +1,7 @@
+/*
+Show market hours opening and closing lines on chart.
+*/
+
 #property 		indicator_separate_window
 #property		indicator_buffers 4
 #property		indicator_color1 Lime
