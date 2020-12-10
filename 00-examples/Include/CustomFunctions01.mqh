@@ -49,3 +49,20 @@ double CalculateStopLoss(string orderType, int stopLossPips)
    }
    return NULL;
 }
+
+// Function to check if trading is allowed
+
+bool IsTradingAllowed()
+{
+   if(!IsTradeAllowed())
+   {
+      Alert("Expert Advisor is not allowed to trade. Enable AutoTrading.");
+      return false;
+   }
+   else if(!IsTradeAllowed(Symbol(),TimeCurrent()))
+   {
+      Alert("Trading not allowed for specific Symbol and Time.");
+      return false;
+   }
+   return true;
+}
