@@ -56,13 +56,51 @@ bool IsTradingAllowed()
 {
    if(!IsTradeAllowed())
    {
-      Alert("Expert Advisor is not allowed to trade. Enable AutoTrading.");
+      Print("Expert Advisor is not allowed to trade. Enable AutoTrading.");
       return false;
    }
    else if(!IsTradeAllowed(Symbol(),TimeCurrent()))
    {
-      Alert("Trading not allowed for specific Symbol and Time.");
+      Print("Trading not allowed for specific Symbol and Time.");
       return false;
    }
+   
+   Print("SymbolInfoDouble: " + SymbolInfoDouble(NULL,SYMBOL_TRADE_CONTRACT_SIZE));
+   Print("MarketInfo: " + MarketInfo(NULL,MODE_MINLOT));
+   
    return true;
+}
+
+double OptimalLotSize(double maxRiskPerc, int maxLossInPips)
+{
+   //double maxRiskPerc = 0.02;
+   //double maxLossInPips = 40;
+   double accEquity = AccountEquity();
+   Print("accEquity: " + accEquity);
+   
+   double lotSize = MarketInfo(NULL,MODE_LOTSIZE);
+   Print("lotSize: " + lotSize);
+   
+   double tickValue = MarketInfo(NULL, MODE_TICKVALUE);
+   if(Digits <= 3){
+      tickValue /= 100;
+   }
+   Print("tickValue: " + tickValue);
+   
+   double maxLossPerTradeInUSD = accEquity * maxRiskPerc;
+   Print("maxLossPerTradeInUSD: " + maxLossPerTradeInUSD);
+   
+   double maxLossInQuoteCurr = maxLossPerTradeInUSD / tickValue;
+   Print("maxLossInQuoteCurr: " + maxLossInQuoteCurr);
+   
+   double optimalLotSize = NormalizeDouble(maxLossInQuoteCurr / (maxLossInPips * GetPipValue()) / lotSize,2);
+   Print("optimalLotSize: " + optimalLotSize);
+   
+   return optimalLotSize;
+}
+
+double OptimalLotSize(double maxRiskPerc, int entryPrice, double stopLoss)
+{
+   int maxLossInPips = MathAbs(entryPrice - stopLoss) / GetPipValue();
+   return OptimalLotSize(maxRiskPerc, maxLossInPips);
 }
