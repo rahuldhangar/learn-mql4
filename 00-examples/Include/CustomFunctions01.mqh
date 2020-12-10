@@ -10,7 +10,7 @@
 // Function to calculate pip value of current currency pair
 double GetPipValue()
 {
-   if(_Digits >= 4)
+   if(Digits >= 4)
    {
       return 0.0001;
    }
@@ -68,6 +68,7 @@ bool IsTradingAllowed()
    return true;
 }
 
+// Function to calculate optimal lot size using number of pips
 double OptimalLotSize(double maxRiskPerc, int maxLossInPips)
 {
    //double maxRiskPerc = 0.02;
@@ -81,20 +82,22 @@ double OptimalLotSize(double maxRiskPerc, int maxLossInPips)
    
    double maxLossPerTradeInUSD = accEquity * maxRiskPerc;   
    double maxLossInQuoteCurr = maxLossPerTradeInUSD / tickValue;
-   
+   Print("*** maxLossInQuoteCurr= " + maxLossInQuoteCurr + " ~ maxLossInPips= " + maxLossInPips + " ~ GetPipValue()= " + GetPipValue() + " ~ lotSize= " + lotSize);
    double optimalLotSize = NormalizeDouble(maxLossInQuoteCurr / (maxLossInPips * GetPipValue()) / lotSize,2);
-   Print("*** accEquity: " + accEquity + " | lotSize: " + lotSize + " | tickValue: " + tickValue + 
-         " | maxLossPerTradeInUSD: " + maxLossPerTradeInUSD + " | maxLossInQuoteCurr: " + maxLossInQuoteCurr + 
-         " | optimalLotSize: " + optimalLotSize);
+   Print("*** accEquity: " + accEquity + " | lotSize: " + lotSize + " | tickValue: " + tickValue );
+   Print("*** maxLossPerTradeInUSD: " + maxLossPerTradeInUSD + " | maxLossInQuoteCurr: " + maxLossInQuoteCurr + " | optimalLotSize: " + optimalLotSize);
    return optimalLotSize;
 }
 
+// Function to calculate optimal lot size using entry and stop loss
 double OptimalLotSize(double maxRiskPerc, double entryPrice, double stopLoss)
 {
    int maxLossInPips = MathAbs(entryPrice - stopLoss) / GetPipValue();
+   if(maxLossInPips < 1)   maxLossInPips = 1;
    return OptimalLotSize(maxRiskPerc, maxLossInPips);
 }
 
+// Function to check already opened orders by matching Magic Number
 bool CheckOpenOrdersByMagicNum(int magicNum)
 {
    int openOrders = OrdersTotal();
@@ -110,4 +113,19 @@ bool CheckOpenOrdersByMagicNum(int magicNum)
       }
    }
    return false;
+}
+
+// Function to check critical errors by error number and exit further execution of EA in case of critial error
+void CheckOrderSendError(int lastErrorNum)
+{
+   if(lastErrorNum == 4051)
+   {
+      Print("*** Invalid function parameter value. EXITING ***");
+      ExpertRemove();      
+   }
+   else if(lastErrorNum == 4013)
+   {
+      Print("*** DIVIDE BY ZERO ERROR ***");
+      ExpertRemove();
+   }
 }
