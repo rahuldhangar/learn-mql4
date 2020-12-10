@@ -21,7 +21,6 @@ double GetPipValue()
 }
 
 // Function to calculate Take Profit
-
 double CalculateTakeProfit(string orderType, int takeProfitPips)
 {
    if(orderType == "Buy")
@@ -36,7 +35,6 @@ double CalculateTakeProfit(string orderType, int takeProfitPips)
 }
 
 // Function to calculate Stop Loss
-
 double CalculateStopLoss(string orderType, int stopLossPips)
 {
    if(orderType == "Buy")
@@ -51,22 +49,21 @@ double CalculateStopLoss(string orderType, int stopLossPips)
 }
 
 // Function to check if trading is allowed
-
 bool IsTradingAllowed()
 {
    if(!IsTradeAllowed())
    {
-      Print("Expert Advisor is not allowed to trade. Enable AutoTrading.");
+      Print("*** Expert Advisor is not allowed to trade. Enable AutoTrading.");
       return false;
    }
    else if(!IsTradeAllowed(Symbol(),TimeCurrent()))
    {
-      Print("Trading not allowed for specific Symbol and Time.");
+      Print("*** Trading not allowed for specific Symbol and Time.");
       return false;
    }
    
-   Print("SymbolInfoDouble: " + SymbolInfoDouble(NULL,SYMBOL_TRADE_CONTRACT_SIZE));
-   Print("MarketInfo: " + MarketInfo(NULL,MODE_MINLOT));
+   // Print("SymbolInfoDouble: " + SymbolInfoDouble(NULL,SYMBOL_TRADE_CONTRACT_SIZE));
+   // Print("MarketInfo: " + MarketInfo(NULL,MODE_MINLOT));
    
    return true;
 }
@@ -75,32 +72,42 @@ double OptimalLotSize(double maxRiskPerc, int maxLossInPips)
 {
    //double maxRiskPerc = 0.02;
    //double maxLossInPips = 40;
-   double accEquity = AccountEquity();
-   Print("accEquity: " + accEquity);
-   
+   double accEquity = AccountEquity();   
    double lotSize = MarketInfo(NULL,MODE_LOTSIZE);
-   Print("lotSize: " + lotSize);
-   
    double tickValue = MarketInfo(NULL, MODE_TICKVALUE);
    if(Digits <= 3){
       tickValue /= 100;
    }
-   Print("tickValue: " + tickValue);
    
-   double maxLossPerTradeInUSD = accEquity * maxRiskPerc;
-   Print("maxLossPerTradeInUSD: " + maxLossPerTradeInUSD);
-   
+   double maxLossPerTradeInUSD = accEquity * maxRiskPerc;   
    double maxLossInQuoteCurr = maxLossPerTradeInUSD / tickValue;
-   Print("maxLossInQuoteCurr: " + maxLossInQuoteCurr);
    
    double optimalLotSize = NormalizeDouble(maxLossInQuoteCurr / (maxLossInPips * GetPipValue()) / lotSize,2);
-   Print("optimalLotSize: " + optimalLotSize);
-   
+   Print("*** accEquity: " + accEquity + " | lotSize: " + lotSize + " | tickValue: " + tickValue + 
+         " | maxLossPerTradeInUSD: " + maxLossPerTradeInUSD + " | maxLossInQuoteCurr: " + maxLossInQuoteCurr + 
+         " | optimalLotSize: " + optimalLotSize);
    return optimalLotSize;
 }
 
-double OptimalLotSize(double maxRiskPerc, int entryPrice, double stopLoss)
+double OptimalLotSize(double maxRiskPerc, double entryPrice, double stopLoss)
 {
    int maxLossInPips = MathAbs(entryPrice - stopLoss) / GetPipValue();
    return OptimalLotSize(maxRiskPerc, maxLossInPips);
+}
+
+bool CheckOpenOrdersByMagicNum(int magicNum)
+{
+   int openOrders = OrdersTotal();
+   for(int i=0; i<openOrders; i++)
+   {
+      if(OrderSelect(i,SELECT_BY_POS) == true)
+      {
+         if(OrderMagicNumber() == magicNum)
+         {
+            //This expert advisor already sent an order
+            return true;
+         }
+      }
+   }
+   return false;
 }
